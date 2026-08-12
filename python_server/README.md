@@ -72,16 +72,28 @@ PORT=8000
 
 ## Usage
 
-### Development
+### Using uv (Recommended)
 
 ```bash
+# Install dependencies with uv
+uv pip install -r requirements.txt
+
 # Run with auto-reload
-python run.py
+uv run python run.py
+
+# Or run directly
+uv run python -m main
 ```
 
-### Production
+### Using pip
 
 ```bash
+# Install dependencies with pip
+pip install -r requirements.txt
+
+# Run with auto-reload
+python run.py
+
 # Run without auto-reload
 python main.py
 
