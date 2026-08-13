@@ -12,7 +12,8 @@ apiServer.defineRoute({
     const host = this.headers.host;
     const url = new URL(`https://${host}/${this.url}`);
     const provider = url.searchParams.get('provider');
-    logger.logMethodArgs?.('get-auth', { host, url, provider });
+    const githubHost = url.searchParams.get('github_host') || config.githubHost;
+    logger.logMethodArgs?.('get-auth', { host, url, provider, githubHost });
 
     if (provider !== 'github') {
       return {
@@ -22,13 +23,20 @@ apiServer.defineRoute({
       };
     }
 
+    // Use custom GitHub host if provided, otherwise fall back to config
+    const authConfig = {
+      tokenHost: githubHost,
+      tokenPath: config.auth.tokenPath,
+      authorizePath: config.auth.authorizePath,
+    };
+
     const client = new AuthorizationCode({
       client: config.client,
-      auth: config.auth,
+      auth: authConfig,
     });
 
     const authorizationUri = client.authorizeURL({
-      redirect_uri: `https://${host}/callback?provider=${provider}`,
+      redirect_uri: `https://${host}/callback?provider=${provider}&github_host=${encodeURIComponent(githubHost)}`,
       scope: config.scope,
       state: randomString(),
     });
