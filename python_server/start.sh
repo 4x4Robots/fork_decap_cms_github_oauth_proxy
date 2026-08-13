@@ -15,8 +15,9 @@ fi
 echo "Available routes:"
 echo "  GET /          - Service info"
 echo "  GET /auth      - Initiate GitHub OAuth"
-echo "  GET /callback   - OAuth callback handler"
+echo "  GET /callback  - OAuth callback handler"
 echo ""
 
 # Run the server with uv
 uv run python run.py
+
