@@ -48,10 +48,8 @@ apiServer.defineRoute({
     const accessToken = await client.getToken(tokenParams);
     const token = accessToken.token['access_token'] as string;
 
-    // Set CORS headers to allow communication with Decap CMS
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Origin', '*');
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    // Set proper content type for HTML response
+    this.serverResponse.raw_.setHeader('Content-Type', 'text/html; charset=utf-8');
 
     this.serverResponse.reply(renderBody('success', token, githubHost));
 
@@ -62,32 +60,16 @@ apiServer.defineRoute({
   },
 });
 
-// Add OPTIONS support for CORS preflight
-apiServer.defineRoute({
-  method: 'OPTIONS',
-  url: '/callback',
-  handler: function () {
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Origin', '*');
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    this.serverResponse.raw_.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    this.serverResponse.raw_.setHeader('Access-Control-Max-Age', '86400');
-    
-    return {
-      ok: true,
-      statusCode: 204,
-      data: {},
-    };
-  },
-});
-
 function renderBody(status: string, token?: string, githubHost?: string) {
   const payload = token ? { token, githubHost } : { githubHost: githubHost || config.githubHost };
   return `
     <script>
-      window.opener.postMessage(
-        'authorization:github:${status}:${JSON.stringify(payload)}',
-        "*"
-      );
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(
+          'authorization:github:${status}:${JSON.stringify(payload)}',
+          "*"
+        );
+      }
       window.close();
     </script>
   `;
