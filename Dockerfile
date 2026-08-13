@@ -32,9 +32,9 @@ CMD ["yarn", "serve"]
 ENV NODE_ENV production
 ENV NODE_OPTIONS --enable-source-maps
 ENV HOST 0.0.0.0
-ENV PORT 80
+ENV PORT 8004
 
-EXPOSE 80
+EXPOSE $PORT
 
 # Copy all deps from last stage
 COPY --from=builder /app/node_modules ./node_modules
